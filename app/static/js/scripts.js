@@ -10,10 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function updateLastUpdated() {
-    const lastUpdatedElement = document.getElementById('last-updated');
-    if (lastUpdatedElement) {
-        const now = new Date();
-        lastUpdatedElement.textContent = now.toLocaleTimeString();
+    const now = new Date();
+    const timeElement = document.getElementById('last-updated');
+    if (timeElement) {
+        timeElement.textContent = now.toLocaleTimeString();
     }
 }
 
@@ -46,19 +46,17 @@ function updateDashboard(data) {
     updateAlert(data);
     
     // Show/hide actions taken
-    if (data.processes_closed) {
-        updateActions(data.processes_closed);
-    }
+    updateActions(data.processes_closed);
+    
+    // Update last updated time
+    updateLastUpdated();
 }
 
 function updateGauge(type, value) {
     const gaugeElement = document.getElementById(`${type}-gauge`);
     const valueElement = document.getElementById(`${type}-value`);
     
-    if (!gaugeElement || !valueElement) {
-        console.warn(`Gauge elements for ${type} not found`);
-        return;
-    }
+    if (!gaugeElement || !valueElement) return;
     
     // Update the gauge fill
     gaugeElement.style.width = `${value}%`;
@@ -78,12 +76,10 @@ function updateGauge(type, value) {
 
 function updateProcessList(processes) {
     const processList = document.getElementById('process-list');
-    if (!processList) {
-        console.warn('Process list element not found');
-        return;
-    }
+    if (!processList) return;
     
     processList.innerHTML = '';
+    
     console.log("Updating process list with:", processes);
     
     if (!processes || processes.length === 0) {
@@ -117,12 +113,9 @@ function updateAlert(data) {
     const alertContainer = document.getElementById('alert-container');
     const alertDetails = document.getElementById('alert-details');
     
-    if (!alertContainer || !alertDetails) {
-        console.warn('Alert elements not found');
-        return;
-    }
+    if (!alertContainer || !alertDetails) return;
     
-    if (data.cpu_usage >= 90 || data.memory_usage >= 90 || data.disk_usage >= 90) {
+    if (data.threshold_exceeded || data.cpu_usage >= 90 || data.memory_usage >= 90 || data.disk_usage >= 90) {
         // Show alert
         alertContainer.classList.remove('hidden');
         
@@ -150,10 +143,7 @@ function updateActions(closedProcesses) {
     const actionsContainer = document.getElementById('actions-container');
     const actionsList = document.getElementById('actions-list');
     
-    if (!actionsContainer || !actionsList) {
-        console.warn('Actions elements not found');
-        return;
-    }
+    if (!actionsContainer || !actionsList) return;
     
     if (closedProcesses && closedProcesses.length > 0) {
         // Show actions
@@ -161,6 +151,9 @@ function updateActions(closedProcesses) {
         
         // Build actions list
         actionsList.innerHTML = '';
+        
+        console.log("Processes closed:", closedProcesses);
+        
         closedProcesses.forEach(process => {
             const li = document.createElement('li');
             li.textContent = process;
@@ -173,20 +166,15 @@ function updateActions(closedProcesses) {
 }
 
 function showError() {
-    // Update CPU value
     const cpuValue = document.getElementById('cpu-value');
-    if (cpuValue) cpuValue.textContent = 'Error';
-    
-    // Update memory value
     const memoryValue = document.getElementById('memory-value');
-    if (memoryValue) memoryValue.textContent = 'Error';
-    
-    // Update disk value
     const diskValue = document.getElementById('disk-value');
+    const processList = document.getElementById('process-list');
+    
+    if (cpuValue) cpuValue.textContent = 'Error';
+    if (memoryValue) memoryValue.textContent = 'Error';
     if (diskValue) diskValue.textContent = 'Error';
     
-    // Update process list with error message
-    const processList = document.getElementById('process-list');
     if (processList) {
         processList.innerHTML = '<tr><td colspan="4" class="loading-text">Error fetching data</td></tr>';
     }

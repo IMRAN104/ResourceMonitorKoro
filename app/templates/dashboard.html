@@ -1,16 +1,17 @@
+<!-- app/templates/dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResourceMonitorKoro</title>
+    <title>ResourceMonitorKoro Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>ResourceMonitorKoro Dashboard</h1>
-            <p>Last updated: <span id="last-updated">Loading...</span></p>
+            <p>Last updated: <span id="last-updated">Just now</span></p>
         </header>
         
         <div class="dashboard-grid">
@@ -71,18 +72,20 @@
             </div>
         </div>
         
+        <!-- Alert container - will be shown when resources exceed threshold -->
         <div id="alert-container" class="hidden">
             <div class="alert">
-                <h3>System Alert</h3>
-                <p id="alert-message">Resource usage exceeding threshold!</p>
+                <h3>SYSTEM ALERT: High Resource Usage</h3>
+                <p>One or more system resources are exceeding the 90% threshold.</p>
                 <div id="alert-details"></div>
             </div>
         </div>
         
+        <!-- Actions container - will be shown when processes are closed -->
         <div id="actions-container" class="hidden">
             <div class="actions">
-                <h3>Actions Taken</h3>
-                <p>The following processes were automatically closed:</p>
+                <h3>Automatic Actions Taken</h3>
+                <p>The following processes were automatically closed to free up resources:</p>
                 <ul id="actions-list"></ul>
             </div>
         </div>
