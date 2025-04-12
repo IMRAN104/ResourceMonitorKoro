@@ -3,28 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resource Monitor Dashboard</title>
+    <title>ResourceMonitorKoro</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Resource Monitor Dashboard</h1>
-        <div id="resource-metrics">
-            <h2>Resource Metrics</h2>
-            <p id="cpu-usage">CPU Usage: <span id="cpu-value">Loading...</span></p>
-            <p id="memory-usage">Memory Usage: <span id="memory-value">Loading...</span></p>
-            <p id="disk-usage">Disk Usage: <span id="disk-value">Loading...</span></p>
+        <header>
+            <h1>ResourceMonitorKoro Dashboard</h1>
+            <p>Last updated: <span id="last-updated">Loading...</span></p>
+        </header>
+        
+        <div class="dashboard-grid">
+            <div class="card resource-metrics">
+                <h2>System Resources</h2>
+                <div class="metrics-container">
+                    <div class="metric">
+                        <h3>CPU Usage</h3>
+                        <div class="gauge-container">
+                            <div class="gauge">
+                                <div class="gauge-fill" id="cpu-gauge"></div>
+                            </div>
+                            <div class="gauge-value" id="cpu-value">Loading...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric">
+                        <h3>Memory Usage</h3>
+                        <div class="gauge-container">
+                            <div class="gauge">
+                                <div class="gauge-fill" id="memory-gauge"></div>
+                            </div>
+                            <div class="gauge-value" id="memory-value">Loading...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric">
+                        <h3>Disk Usage</h3>
+                        <div class="gauge-container">
+                            <div class="gauge">
+                                <div class="gauge-fill" id="disk-gauge"></div>
+                            </div>
+                            <div class="gauge-value" id="disk-value">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card top-processes">
+                <h2>Top Resource-Hungry Processes</h2>
+                <div class="process-container">
+                    <table id="process-table">
+                        <thead>
+                            <tr>
+                                <th>PID</th>
+                                <th>Process Name</th>
+                                <th>CPU %</th>
+                                <th>Memory %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="process-list">
+                            <tr>
+                                <td colspan="4" class="loading-text">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div id="top-processes">
-            <h2>Top 5 Resource Hungry Processes</h2>
-            <ul id="process-list">
-                <!-- Top processes will be dynamically populated here -->
-            </ul>
+        
+        <div id="alert-container" class="hidden">
+            <div class="alert">
+                <h3>System Alert</h3>
+                <p id="alert-message">Resource usage exceeding threshold!</p>
+                <div id="alert-details"></div>
+            </div>
         </div>
-        <div id="alert-message" style="display:none;">
-            <p class="alert">Alert: Resource usage is above 90%!</p>
+        
+        <div id="actions-container" class="hidden">
+            <div class="actions">
+                <h3>Actions Taken</h3>
+                <p>The following processes were automatically closed:</p>
+                <ul id="actions-list"></ul>
+            </div>
         </div>
     </div>
+    
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
 </html>

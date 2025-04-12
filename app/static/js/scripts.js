@@ -5,22 +5,27 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchResourceMetrics();
     
     // Set up periodic refresh
-    setInterval(fetchResourceMetrics, 10000); // Refresh every 10 seconds
+    setInterval(fetchResourceMetrics, 5000); // Refresh every 5 seconds
     setInterval(updateLastUpdated, 60000); // Update the "last updated" text every minute
 });
 
 function updateLastUpdated() {
-    const now = new Date();
-    document.getElementById('last-updated').textContent = now.toLocaleTimeString();
+    const lastUpdatedElement = document.getElementById('last-updated');
+    if (lastUpdatedElement) {
+        const now = new Date();
+        lastUpdatedElement.textContent = now.toLocaleTimeString();
+    }
 }
 
 async function fetchResourceMetrics() {
     try {
+        console.log("Fetching resource metrics...");
         const response = await fetch('/api/resource_metrics');
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
+        console.log("Received data:", data);
         updateDashboard(data);
     } catch (error) {
         console.error('Error fetching resource metrics:', error);
@@ -41,15 +46,19 @@ function updateDashboard(data) {
     updateAlert(data);
     
     // Show/hide actions taken
-    updateActions(data.processes_closed);
-    
-    // Update last updated time
-    updateLastUpdated();
+    if (data.processes_closed) {
+        updateActions(data.processes_closed);
+    }
 }
 
 function updateGauge(type, value) {
     const gaugeElement = document.getElementById(`${type}-gauge`);
     const valueElement = document.getElementById(`${type}-value`);
+    
+    if (!gaugeElement || !valueElement) {
+        console.warn(`Gauge elements for ${type} not found`);
+        return;
+    }
     
     // Update the gauge fill
     gaugeElement.style.width = `${value}%`;
@@ -69,11 +78,17 @@ function updateGauge(type, value) {
 
 function updateProcessList(processes) {
     const processList = document.getElementById('process-list');
+    if (!processList) {
+        console.warn('Process list element not found');
+        return;
+    }
+    
     processList.innerHTML = '';
+    console.log("Updating process list with:", processes);
     
     if (!processes || processes.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="4" class="loading-text">No process data available</td>';
+        row.innerHTML = '<td colspan="4" class="loading-text">No processes found</td>';
         processList.appendChild(row);
         return;
     }
@@ -81,11 +96,17 @@ function updateProcessList(processes) {
     processes.forEach(process => {
         const row = document.createElement('tr');
         
+        // Handle different possible data structures
+        const pid = process.pid || (Array.isArray(process) ? process[0] : 'N/A');
+        const name = process.name || (Array.isArray(process) && process[1] && process[1].name ? process[1].name : 'Unknown');
+        const cpuPercent = process.cpu_percent || (Array.isArray(process) && process[1] && process[1].cpu_percent ? process[1].cpu_percent : 0);
+        const memoryPercent = process.memory_percent || (Array.isArray(process) && process[1] && process[1].memory_percent ? process[1].memory_percent : 0);
+        
         row.innerHTML = `
-            <td>${process.pid}</td>
-            <td>${process.name}</td>
-            <td>${process.cpu_percent.toFixed(1)}%</td>
-            <td>${process.memory_percent.toFixed(1)}%</td>
+            <td>${pid}</td>
+            <td>${name}</td>
+            <td>${typeof cpuPercent === 'number' ? cpuPercent.toFixed(1) : cpuPercent}%</td>
+            <td>${typeof memoryPercent === 'number' ? memoryPercent.toFixed(1) : memoryPercent}%</td>
         `;
         
         processList.appendChild(row);
@@ -95,6 +116,11 @@ function updateProcessList(processes) {
 function updateAlert(data) {
     const alertContainer = document.getElementById('alert-container');
     const alertDetails = document.getElementById('alert-details');
+    
+    if (!alertContainer || !alertDetails) {
+        console.warn('Alert elements not found');
+        return;
+    }
     
     if (data.cpu_usage >= 90 || data.memory_usage >= 90 || data.disk_usage >= 90) {
         // Show alert
@@ -124,6 +150,11 @@ function updateActions(closedProcesses) {
     const actionsContainer = document.getElementById('actions-container');
     const actionsList = document.getElementById('actions-list');
     
+    if (!actionsContainer || !actionsList) {
+        console.warn('Actions elements not found');
+        return;
+    }
+    
     if (closedProcesses && closedProcesses.length > 0) {
         // Show actions
         actionsContainer.classList.remove('hidden');
@@ -142,10 +173,21 @@ function updateActions(closedProcesses) {
 }
 
 function showError() {
-    document.getElementById('cpu-value').textContent = 'Error';
-    document.getElementById('memory-value').textContent = 'Error';
-    document.getElementById('disk-value').textContent = 'Error';
+    // Update CPU value
+    const cpuValue = document.getElementById('cpu-value');
+    if (cpuValue) cpuValue.textContent = 'Error';
     
+    // Update memory value
+    const memoryValue = document.getElementById('memory-value');
+    if (memoryValue) memoryValue.textContent = 'Error';
+    
+    // Update disk value
+    const diskValue = document.getElementById('disk-value');
+    if (diskValue) diskValue.textContent = 'Error';
+    
+    // Update process list with error message
     const processList = document.getElementById('process-list');
-    processList.innerHTML = '<tr><td colspan="4" class="loading-text">Error fetching data</td></tr>';
+    if (processList) {
+        processList.innerHTML = '<tr><td colspan="4" class="loading-text">Error fetching data</td></tr>';
+    }
 }
