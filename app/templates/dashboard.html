@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Monitor Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Resource Monitor Dashboard</h1>
+        <div id="resource-metrics">
+            <h2>Resource Metrics</h2>
+            <p id="cpu-usage">CPU Usage: <span id="cpu-value">Loading...</span></p>
+            <p id="memory-usage">Memory Usage: <span id="memory-value">Loading...</span></p>
+            <p id="disk-usage">Disk Usage: <span id="disk-value">Loading...</span></p>
+        </div>
+        <div id="top-processes">
+            <h2>Top 5 Resource Hungry Processes</h2>
+            <ul id="process-list">
+                <!-- Top processes will be dynamically populated here -->
+            </ul>
+        </div>
+        <div id="alert-message" style="display:none;">
+            <p class="alert">Alert: Resource usage is above 90%!</p>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
